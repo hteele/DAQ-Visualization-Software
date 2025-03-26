@@ -137,7 +137,7 @@ class DataAcquisition(QMainWindow):
 
         # SAVE BTN
         save_button = QToolButton(self)
-        save_button.setIcon(icon_path('save_icon.png'))
+        save_button.setIcon(QIcon(icon_path('save_icon.png')))
         save_button.setIconSize(QSize(20,20))
         save_button.setFixedSize(30,30)
         save_button.setAutoRaise(True)
