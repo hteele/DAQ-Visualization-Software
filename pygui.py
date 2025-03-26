@@ -29,9 +29,8 @@ class DataAcquisition(QMainWindow):
         super(DataAcquisition, self).__init__(*args, **kwargs)
         self.setWindowTitle("Ricovr Data Acquisition Software")
         self.setWindowIcon(QIcon('ricovr_icon.png')) # FIXME: Icon not showing up
-        self.setFixedSize(640, 480)
+        self.setMinimumSize(640, 480)
 
-        layout = QHBoxLayout()
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         self.main_layout = QVBoxLayout(central_widget)
@@ -49,9 +48,11 @@ class DataAcquisition(QMainWindow):
         app.setStyleSheet("""
                         QPushButton {
                             color: white;
+                            background-color: #3c3c3c;
                         }
                         QComboBox{
                             color: white;
+                            background-color: #3c3c3c;
                           }
                     """)
  
@@ -61,33 +62,48 @@ class DataAcquisition(QMainWindow):
         app.setPalette(dark_palette)
 
         # ----------------- TITLE & SUBTITLE -----------------
+        
+        title_layout = QVBoxLayout()
 
         # TITLE
         self.title = QLabel("Ricovr Data Acquisition & Visualization Software", self)
         self.title.setFont(QFont('Verdana', 24))
         self.title.setFixedWidth(640)
-        self.title.move(30, 20)
+        self.title.setAlignment(Qt.AlignCenter)
+        title_layout.addWidget(self.title)
+        #self.title.move(30, 20)
 
         # SUBTITLE
         self.subtitle = QLabel("Harrison Teele - B.E. Computer Engineering '25, M.S. Physics '26", self)
         self.subtitle.setFont(QFont('Verdana', 14))
         self.subtitle.setFixedWidth(640)
-        self.subtitle.move(90, 42)
+        self.subtitle.setAlignment(Qt.AlignCenter)
+        title_layout.addWidget(self.subtitle)
+        #self.subtitle.move(90, 42)
+
+        self.main_layout.addLayout(title_layout)
+        self.main_layout.addItem(QSpacerItem(0, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
+        
 
         # ----------------- CONTROLS -----------------
+        controls_layout = QHBoxLayout()
+        dropdown_layout = QVBoxLayout()
 
         # COM DROPDOWN
-        controls_layout = QHBoxLayout()
         self.com_dropdown = QComboBox(self)
         self.com_dropdown.setFixedWidth(250)
-        self.com_dropdown.move(5,395)
-        controls_layout.addWidget(self.com_dropdown)
+        #self.com_dropdown.move(5,395)
+        dropdown_layout.addWidget(self.com_dropdown)
 
         # BAUDRATE DROPDOWN
         self.baud_dropdown = QComboBox(self)
         self.baud_dropdown.setFixedWidth(160)
-        self.baud_dropdown.move(5,428)
-        controls_layout.addWidget(self.baud_dropdown)
+        #self.baud_dropdown.move(5,428)
+        dropdown_layout.addWidget(self.baud_dropdown)
+
+        controls_layout.addLayout(dropdown_layout)
+
+        controls_layout.addStretch(1)
 
         self.com_dropdown.currentIndexChanged.connect(self.on_com_change)
         self.baud_dropdown.currentIndexChanged.connect(self.on_baud_change)
@@ -95,24 +111,24 @@ class DataAcquisition(QMainWindow):
         # START BTN
         start_button = QPushButton("Start", self)
         start_button.setToolTip("Starts data logging")
-        start_button.move(255,395)
-        start_button.setFixedWidth(75)
+        #start_button.move(255,395)
+        start_button.setFixedSize(75, 30)
         start_button.clicked.connect(self.button_start)
         controls_layout.addWidget(start_button)
 
         # STOP BTN 
         stop_button = QPushButton("Stop", self)
         stop_button.setToolTip("Stops data logging")
-        stop_button.move(330,395)
-        stop_button.setFixedWidth(75)
+        #stop_button.move(330,395)
+        stop_button.setFixedSize(75, 30)
         stop_button.clicked.connect(self.button_stop)
         controls_layout.addWidget(stop_button)
 
         # CLEAR BTN
         clear_button = QPushButton("Clear Plot", self)
         clear_button.setToolTip("Clears current plot")
-        clear_button.move(405,395)
-        clear_button.setFixedWidth(100)
+        #clear_button.move(405,395)
+        clear_button.setFixedSize(100, 30)
         clear_button.clicked.connect(self.button_clear)
         controls_layout.addWidget(clear_button)
 
@@ -123,7 +139,7 @@ class DataAcquisition(QMainWindow):
         save_button.setFixedSize(30,30)
         save_button.setAutoRaise(True)
         save_button.setToolTip("Save data to .csv")
-        save_button.move(605,395)
+        #save_button.move(605,395)
         save_button.setStyleSheet("""
                                     QToolButton {
                                         background: transparent;
@@ -135,6 +151,8 @@ class DataAcquisition(QMainWindow):
                                 """)
         save_button.clicked.connect(self.on_save)
         controls_layout.addWidget(save_button)
+
+        self.main_layout.addLayout(controls_layout)
 
         # ----------------- INIT. FUNCTIONS -----------------
 
@@ -264,7 +282,6 @@ class DataAcquisition(QMainWindow):
 
     def init_plot(self):
         controls_layout = QHBoxLayout()
-        self.main_layout.addLayout(controls_layout)
         self.figure = Figure()
         self.canvas = FigureCanvas(self.figure)
         #self.canvas.move(300,300) # TODO: Remove this line
