@@ -28,15 +28,17 @@ class DataAcquisition(QMainWindow):
     def __init__(self, *args, **kwargs):
         super(DataAcquisition, self).__init__(*args, **kwargs)
         self.setWindowTitle("Ricovr Data Acquisition Software")
-        self.setWindowIcon(QIcon('ricovr_icon.png')) # FIXME: Icon not showing up
         self.setMinimumSize(800, 600)
+
+        # ----------------- INIT. AXES -----------------
+
+        self.x_data = []
+        self.y_data = []
+        self.serial_buffer = []
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         self.main_layout = QVBoxLayout(central_widget)
-        self.x_data = []
-        self.y_data = []
-        self.serial_buffer = []
 
         self.initUI()
 
@@ -68,18 +70,14 @@ class DataAcquisition(QMainWindow):
         # TITLE
         self.title = QLabel("Ricovr Data Acquisition & Visualization Software", self)
         self.title.setFont(QFont('Verdana', 24))
-        #self.title.setFixedWidth(640)
         self.title.setAlignment(Qt.AlignCenter)
         title_layout.addWidget(self.title)
-        #self.title.move(30, 20)
 
         # SUBTITLE
         self.subtitle = QLabel("Harrison Teele - B.E. Computer Engineering '25, M.S. Physics '26", self)
         self.subtitle.setFont(QFont('Verdana', 14))
-        #self.subtitle.setFixedWidth(640)
         self.subtitle.setAlignment(Qt.AlignCenter)
         title_layout.addWidget(self.subtitle)
-        #self.subtitle.move(90, 42)
 
         self.main_layout.addLayout(title_layout)
         self.main_layout.addItem(QSpacerItem(0, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
@@ -92,13 +90,11 @@ class DataAcquisition(QMainWindow):
         # COM DROPDOWN
         self.com_dropdown = QComboBox(self)
         self.com_dropdown.setFixedWidth(250)
-        #self.com_dropdown.move(5,395)
         dropdown_layout.addWidget(self.com_dropdown)
 
         # BAUDRATE DROPDOWN
         self.baud_dropdown = QComboBox(self)
         self.baud_dropdown.setFixedWidth(160)
-        #self.baud_dropdown.move(5,428)
         dropdown_layout.addWidget(self.baud_dropdown)
 
         controls_layout.addLayout(dropdown_layout)
@@ -111,7 +107,6 @@ class DataAcquisition(QMainWindow):
         # START BTN
         start_button = QPushButton("Start", self)
         start_button.setToolTip("Starts data logging")
-        #start_button.move(255,395)
         start_button.setFixedSize(75, 30)
         start_button.clicked.connect(self.button_start)
         controls_layout.addWidget(start_button)
@@ -119,7 +114,6 @@ class DataAcquisition(QMainWindow):
         # STOP BTN 
         stop_button = QPushButton("Stop", self)
         stop_button.setToolTip("Stops data logging")
-        #stop_button.move(330,395)
         stop_button.setFixedSize(75, 30)
         stop_button.clicked.connect(self.button_stop)
         controls_layout.addWidget(stop_button)
@@ -127,7 +121,6 @@ class DataAcquisition(QMainWindow):
         # CLEAR BTN
         clear_button = QPushButton("Clear Plot", self)
         clear_button.setToolTip("Clears current plot")
-        #clear_button.move(405,395)
         clear_button.setFixedSize(100, 30)
         clear_button.clicked.connect(self.button_clear)
         controls_layout.addWidget(clear_button)
@@ -139,7 +132,6 @@ class DataAcquisition(QMainWindow):
         save_button.setFixedSize(30,30)
         save_button.setAutoRaise(True)
         save_button.setToolTip("Save data to .csv")
-        #save_button.move(605,395)
         save_button.setStyleSheet("""
                                     QToolButton {
                                         background: transparent;
@@ -284,7 +276,6 @@ class DataAcquisition(QMainWindow):
         controls_layout = QHBoxLayout()
         self.figure = Figure()
         self.canvas = FigureCanvas(self.figure)
-        #self.canvas.move(300,300) # TODO: Remove this line
         self.canvas.setFixedSize(800,400)
         self.axes = self.figure.add_subplot(111)
         self.axes.set_visible(False)
@@ -302,9 +293,14 @@ class DataAcquisition(QMainWindow):
         self.main_layout.addWidget(self.canvas, alignment=Qt.AlignCenter)
 
     def update_plot(self):
+        if not self.com_port:
+            logging.info("Error: No COM port selected")
+            return
+        if not self.baudrate:
+            logging.info("Error: No baudrate selected")
+            return
         if not self.serial_buffer:
             return
-
         if not getattr(self, "process_start", False):
             return
         
@@ -312,11 +308,7 @@ class DataAcquisition(QMainWindow):
             self.axes.set_visible(True)
             self.init_text.set_visible(False)
 
-        if not self.serial_buffer:
-            return
-        
         value = self.serial_buffer[-1]
-
         self.serial_buffer.clear()
         t_current = datetime.now(self.est_tz)
         self.x_data.append(t_current)
@@ -335,8 +327,8 @@ class DataAcquisition(QMainWindow):
         self.axes.relim()
         self.axes.autoscale_view()
 
-        formatted = mdates.DateFormatter('%I:%M:%S', tz=self.est_tz)
-        self.axes.xaxis.set_major_formatter(formatted)
+        t_formatter = mdates.DateFormatter('%I:%M:%S', tz=self.est_tz)
+        self.axes.xaxis.set_major_formatter(t_formatter)
 
         for label in self.axes.get_xticklabels():
             label.set_rotation(20)
@@ -348,11 +340,9 @@ class DataAcquisition(QMainWindow):
     def serial_read(self):
         if not self.process_start:
             return
-        
         if not self.com_port:
             logging.info("Error: No COM port selected")
             return
-        
         if not self.baudrate:
             logging.info("Error: No baudrate selected")
             return
@@ -393,8 +383,6 @@ class DataAcquisition(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-
-
     window = DataAcquisition()
     window.show() 
     app.exec_()
