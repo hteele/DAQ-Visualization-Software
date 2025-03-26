@@ -27,7 +27,8 @@ logging.basicConfig(level=logging.INFO,
 class DataAcquisition(QMainWindow):
     def __init__(self, *args, **kwargs):
         super(DataAcquisition, self).__init__(*args, **kwargs)
-        self.setWindowTitle("Ricovr Data Acquisition Software")
+        self.setWindowTitle("aaa")
+        #self.setWindowTitle("Ricovr Data Acquisition Software")
         self.setWindowIcon(QIcon('ricovr_icon.png')) # FIXME: Icon not showing up
         self.setFixedSize(640, 480)
 
@@ -41,15 +42,23 @@ class DataAcquisition(QMainWindow):
         self.initUI()
 
     def initUI(self):
+        
+        app.setStyle(QStyleFactory.create("Fusion"))
+        dark_palette = QPalette()
+        dark_palette.setColor(QPalette.Window, QColor("#3c3c3c"))
+        dark_palette.setColor(QPalette.WindowText, QColor("#ffffff"))
+        app.setPalette(dark_palette)
 
         # TITLE
-        self.title = QLabel("Ricovr Data Acquisition & Visualization Software", self)
+        #self.title = QLabel("Ricovr Data Acquisition & Visualization Software", self)
+        self.title = QLabel("aaa", self)
         self.title.setFont(QFont('Verdana', 24))
         self.title.setFixedWidth(640)
         self.title.move(30, 20)
 
         # SUBTITLE
-        self.subtitle = QLabel("Harrison Teele - B.E. Computer Engineering '25, M.S. Physics '26", self)
+        self.subtitle = QLabel("aaa", self)
+        #        self.subtitle = QLabel("Harrison Teele - B.E. Computer Engineering '25, M.S. Physics '26", self)
         self.subtitle.setFont(QFont('Verdana', 14))
         self.subtitle.setFixedWidth(640)
         self.subtitle.move(90, 42)
@@ -332,8 +341,11 @@ class DataAcquisition(QMainWindow):
                 except Exception as e:
                     logging.error(f"Error converting data: {e}")
 
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+
+
     window = DataAcquisition()
     window.show() 
     app.exec_()
