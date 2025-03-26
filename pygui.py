@@ -29,7 +29,7 @@ class DataAcquisition(QMainWindow):
         super(DataAcquisition, self).__init__(*args, **kwargs)
         self.setWindowTitle("Ricovr Data Acquisition Software")
         self.setWindowIcon(QIcon('ricovr_icon.png')) # FIXME: Icon not showing up
-        self.setMinimumSize(640, 480)
+        self.setMinimumSize(800, 600)
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -68,7 +68,7 @@ class DataAcquisition(QMainWindow):
         # TITLE
         self.title = QLabel("Ricovr Data Acquisition & Visualization Software", self)
         self.title.setFont(QFont('Verdana', 24))
-        self.title.setFixedWidth(640)
+        #self.title.setFixedWidth(640)
         self.title.setAlignment(Qt.AlignCenter)
         title_layout.addWidget(self.title)
         #self.title.move(30, 20)
@@ -76,7 +76,7 @@ class DataAcquisition(QMainWindow):
         # SUBTITLE
         self.subtitle = QLabel("Harrison Teele - B.E. Computer Engineering '25, M.S. Physics '26", self)
         self.subtitle.setFont(QFont('Verdana', 14))
-        self.subtitle.setFixedWidth(640)
+        #self.subtitle.setFixedWidth(640)
         self.subtitle.setAlignment(Qt.AlignCenter)
         title_layout.addWidget(self.subtitle)
         #self.subtitle.move(90, 42)
@@ -182,7 +182,7 @@ class DataAcquisition(QMainWindow):
     def init_com_ports(self):
         ports = serial.tools.list_ports.comports()
         port_list = [p.device for p in ports]
-        update_list = [f"COM {i+1}: {port}" for i, port in enumerate(port_list)]
+        update_list = [f"Port: {port}" for i, port in enumerate(port_list)]
         active_list = [self.com_dropdown.itemText(i) for i in range(self.com_dropdown.count())]
         
         if update_list != active_list:
@@ -285,7 +285,7 @@ class DataAcquisition(QMainWindow):
         self.figure = Figure()
         self.canvas = FigureCanvas(self.figure)
         #self.canvas.move(300,300) # TODO: Remove this line
-        self.canvas.setFixedSize(640,300)
+        self.canvas.setFixedSize(800,400)
         self.axes = self.figure.add_subplot(111)
         self.axes.set_visible(False)
         self.line, = self.axes.plot([], [], lw=2)
@@ -332,7 +332,8 @@ class DataAcquisition(QMainWindow):
         start_lim = max(self.x_data[0], t_current - timedelta(seconds=120))
         end_lim = t_current
         self.axes.set_xlim(mdates.date2num(start_lim), mdates.date2num(end_lim))
-        self.axes.set_ylim(0, 100)
+        self.axes.relim()
+        self.axes.autoscale_view()
 
         formatted = mdates.DateFormatter('%I:%M:%S', tz=self.est_tz)
         self.axes.xaxis.set_major_formatter(formatted)
@@ -345,33 +346,49 @@ class DataAcquisition(QMainWindow):
         self.canvas.draw()
 
     def serial_read(self):
-        if not hasattr(self, "com_port") or self.com_port is None:
-            logging.info("Error: No COM Port selected")
-            return None
-        if not hasattr(self, "baudrate") or self.baudrate is None:
-            logging.info("Error: No Baudrate selected")
-            return None
+        if not self.process_start:
+            return
+        
+        if not self.com_port:
+            logging.info("Error: No COM port selected")
+            return
+        
+        if not self.baudrate:
+            logging.info("Error: No baudrate selected")
+            return
+    
+        if getattr(self, "ser", None) is None or not self.ser.is_open:
+            try:
+                self.ser = serial.Serial(self.com_port, self.baudrate, timeout=0.1)
+                logging.info(f"Connected to {self.com_port} at {self.baudrate} baud")
+                self.error = False
+            except Exception as e:
+                logging.error(f"Error opening port {self.com_port}: {e}")
+                if not getattr(self, "error", False):
+                    QMessageBox.critical(self, "Error", f"Error opening port {self.com_port}: {e}")
+                    self.error = True
+                return
         
         try:
-            if not hasattr(self, "ser") or self.ser is None or not self.ser.is_open:
-                self.ser = serial.Serial(self.com_port, self.baudrate, timeout=1)
-                logging.info(f"Connected to {self.com_port} at {self.baudrate}")
-        except serial.SerialException:
-            logging.info(f"Error connecting to COM Port: {self.com_port}")
-            return None
-
-        if self.ser and self.ser.is_open:
             while self.ser.in_waiting:
-                try:
-                    line = self.ser.readline().decode('utf-8').strip()
-                    if line:
-                        value = float(line)
-                        if 0 <= value <= 100:
-                            self.serial_buffer.append(value)
-                        else:
-                            logging.info(f"Invalid value, out of range: {value}")
-                except Exception as e:
-                    logging.error(f"Error converting data: {e}")
+                line = self.ser.readline().decode().strip()
+                if line:
+                    value = float(line)
+                    self.serial_buffer.append(value)
+                else:
+                    logging.error(f"VALUE READ ERROR: {line}")
+        except OSError as e:
+            logging.error(f"DEVICE READ ERROR: {e}")
+            if self.ser is not None and self.ser.is_open:
+                self.ser.close()
+            self.ser = None
+            if not getattr(self, "error", False):
+                QMessageBox.warning(self, "Error", f"DEVICE READ ERROR: {e}")
+                self.error = True
+            return
+        except Exception as e:
+            logging.error(f"Error: {e}")
+            return
 
 
 if __name__ == "__main__":
