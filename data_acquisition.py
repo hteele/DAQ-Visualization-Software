@@ -3,6 +3,7 @@ import pytz
 import csv
 import logging
 import sys
+import os
 import serial
 import serial.tools.list_ports
 import numpy as np
@@ -62,6 +63,15 @@ class DataAcquisition(QMainWindow):
         dark_palette.setColor(QPalette.Window, QColor("#3c3c3c"))
         dark_palette.setColor(QPalette.WindowText, QColor("#ffffff"))
         app.setPalette(dark_palette)
+
+        # ----------------- SAVE ICON -----------------
+
+        def icon_path(default_path):
+            try:
+                base_path = sys._MEIPASS
+            except Exception:
+                base_path = os.path.abspath(".")
+            return os.path.join(base_path, default_path)
 
         # ----------------- TITLE & SUBTITLE -----------------
         
@@ -127,7 +137,7 @@ class DataAcquisition(QMainWindow):
 
         # SAVE BTN
         save_button = QToolButton(self)
-        save_button.setIcon(QIcon('save_icon.png'))
+        save_button.setIcon(icon_path('save_icon.png'))
         save_button.setIconSize(QSize(20,20))
         save_button.setFixedSize(30,30)
         save_button.setAutoRaise(True)
@@ -221,6 +231,7 @@ class DataAcquisition(QMainWindow):
         else:
             self.baudrate = int(current_baud)
         logging.info("Selected Baudrate: ", self.baudrate)
+
 
     def on_save(self):
         today = date.today()
@@ -379,6 +390,8 @@ class DataAcquisition(QMainWindow):
         except Exception as e:
             logging.error(f"Error: {e}")
             return
+    
+
 
 
 if __name__ == "__main__":
