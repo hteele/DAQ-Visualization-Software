@@ -27,11 +27,11 @@ logging.basicConfig(level=logging.INFO,
 class DataAcquisition(QMainWindow):
     def __init__(self, *args, **kwargs):
         super(DataAcquisition, self).__init__(*args, **kwargs)
-        self.setWindowTitle("aaa")
-        #self.setWindowTitle("Ricovr Data Acquisition Software")
+        self.setWindowTitle("Ricovr Data Acquisition Software")
         self.setWindowIcon(QIcon('ricovr_icon.png')) # FIXME: Icon not showing up
         self.setFixedSize(640, 480)
 
+        layout = QHBoxLayout()
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         self.main_layout = QVBoxLayout(central_widget)
@@ -43,37 +43,50 @@ class DataAcquisition(QMainWindow):
 
     def initUI(self):
         
+        # ----------------- STYLESHEET -----------------
+
         app.setStyle(QStyleFactory.create("Fusion"))
+        app.setStyleSheet("""
+                        QPushButton {
+                            color: white;
+                        }
+                        QComboBox{
+                            color: white;
+                          }
+                    """)
+ 
         dark_palette = QPalette()
         dark_palette.setColor(QPalette.Window, QColor("#3c3c3c"))
         dark_palette.setColor(QPalette.WindowText, QColor("#ffffff"))
         app.setPalette(dark_palette)
 
+        # ----------------- TITLE & SUBTITLE -----------------
+
         # TITLE
-        #self.title = QLabel("Ricovr Data Acquisition & Visualization Software", self)
-        self.title = QLabel("aaa", self)
+        self.title = QLabel("Ricovr Data Acquisition & Visualization Software", self)
         self.title.setFont(QFont('Verdana', 24))
         self.title.setFixedWidth(640)
         self.title.move(30, 20)
 
         # SUBTITLE
-        self.subtitle = QLabel("aaa", self)
-        #        self.subtitle = QLabel("Harrison Teele - B.E. Computer Engineering '25, M.S. Physics '26", self)
+        self.subtitle = QLabel("Harrison Teele - B.E. Computer Engineering '25, M.S. Physics '26", self)
         self.subtitle.setFont(QFont('Verdana', 14))
         self.subtitle.setFixedWidth(640)
         self.subtitle.move(90, 42)
+
+        # ----------------- CONTROLS -----------------
 
         # COM DROPDOWN
         controls_layout = QHBoxLayout()
         self.com_dropdown = QComboBox(self)
         self.com_dropdown.setFixedWidth(250)
-        self.com_dropdown.move(5,390)
+        self.com_dropdown.move(5,395)
         controls_layout.addWidget(self.com_dropdown)
 
         # BAUDRATE DROPDOWN
         self.baud_dropdown = QComboBox(self)
         self.baud_dropdown.setFixedWidth(160)
-        self.baud_dropdown.move(5,415)
+        self.baud_dropdown.move(5,428)
         controls_layout.addWidget(self.baud_dropdown)
 
         self.com_dropdown.currentIndexChanged.connect(self.on_com_change)
@@ -82,7 +95,7 @@ class DataAcquisition(QMainWindow):
         # START BTN
         start_button = QPushButton("Start", self)
         start_button.setToolTip("Starts data logging")
-        start_button.move(250,389)
+        start_button.move(255,395)
         start_button.setFixedWidth(75)
         start_button.clicked.connect(self.button_start)
         controls_layout.addWidget(start_button)
@@ -90,7 +103,7 @@ class DataAcquisition(QMainWindow):
         # STOP BTN 
         stop_button = QPushButton("Stop", self)
         stop_button.setToolTip("Stops data logging")
-        stop_button.move(315,389)
+        stop_button.move(330,395)
         stop_button.setFixedWidth(75)
         stop_button.clicked.connect(self.button_stop)
         controls_layout.addWidget(stop_button)
@@ -98,7 +111,7 @@ class DataAcquisition(QMainWindow):
         # CLEAR BTN
         clear_button = QPushButton("Clear Plot", self)
         clear_button.setToolTip("Clears current plot")
-        clear_button.move(380,389)
+        clear_button.move(405,395)
         clear_button.setFixedWidth(100)
         clear_button.clicked.connect(self.button_clear)
         controls_layout.addWidget(clear_button)
@@ -110,7 +123,7 @@ class DataAcquisition(QMainWindow):
         save_button.setFixedSize(30,30)
         save_button.setAutoRaise(True)
         save_button.setToolTip("Save data to .csv")
-        save_button.move(605,389)
+        save_button.move(605,395)
         save_button.setStyleSheet("""
                                     QToolButton {
                                         background: transparent;
@@ -123,12 +136,15 @@ class DataAcquisition(QMainWindow):
         save_button.clicked.connect(self.on_save)
         controls_layout.addWidget(save_button)
 
+        # ----------------- INIT. FUNCTIONS -----------------
+
         self.com_port_check()
         self.init_com_ports()
         self.init_baudrates()
         self.init_plot()
 
-        # TIMERS
+        # ----------------- TIMERS -----------------
+
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_plot)
 
@@ -137,7 +153,6 @@ class DataAcquisition(QMainWindow):
 
         self.est_tz = pytz.timezone("America/New_York")
         self.start_time = None
-
 
         self.show()
 
