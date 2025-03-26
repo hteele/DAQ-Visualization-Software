@@ -35,6 +35,8 @@ class DataAcquisition(QMainWindow):
 
         self.x_data = []
         self.y_data = []
+        self.full_x_data = []
+        self.full_y_data = []
         self.serial_buffer = []
 
         central_widget = QWidget()
@@ -236,13 +238,13 @@ class DataAcquisition(QMainWindow):
     def on_save(self):
         today = date.today()
         filename = today.strftime("%Y-%m-%d") + ".csv"
-        std_dev = np.std(self.y_data)
-        mean = np.mean(self.y_data)
-        variance = np.var(self.y_data)
+        std_dev = np.std(self.full_y_data)
+        mean = np.mean(self.full_y_data)
+        variance = np.var(self.full_y_data)
         with open(filename, "w", newline="") as file:
             writer = csv.writer(file)
             writer.writerow(["Time Stamp", "Value", "Standard Deviation", "Mean", "Variance"])
-            for t, val in zip(self.x_data, self.y_data):
+            for t, val in zip(self.full_x_data, self.full_y_data):
                 writer.writerow([t.strftime("%H:%M:%S"), val])
             writer.writerow(["", "", std_dev, mean, variance])
         logging.info("Data saved to .csv")
@@ -250,6 +252,8 @@ class DataAcquisition(QMainWindow):
 
     def button_start(self):
         self.start_time = time.time()
+        self.full_x_data.clear()
+        self.full_y_data.clear()
         self.x_data.clear()
         self.y_data.clear()
 
@@ -276,6 +280,8 @@ class DataAcquisition(QMainWindow):
         logging.info("Stopping data acquisition...")
 
     def button_clear(self):
+        self.full_x_data.clear()
+        self.full_y_data.clear()
         self.x_data.clear()
         self.y_data.clear()
         self.init_text.set_visible(True)
@@ -322,6 +328,8 @@ class DataAcquisition(QMainWindow):
         value = self.serial_buffer[-1]
         self.serial_buffer.clear()
         t_current = datetime.now(self.est_tz)
+        self.full_x_data.append(t_current)
+        self.full_y_data.append(value)
         self.x_data.append(t_current)
         self.y_data.append(value)
 
