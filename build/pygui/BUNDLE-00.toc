@@ -1,0 +1,3 @@
+([('pygui',
+   '/Users/harryt/Documents/Ricovr Coding Challenge/dist/pygui',
+   'EXECUTABLE')],)
