@@ -28,7 +28,7 @@ logging.basicConfig(level=logging.INFO,
 class DataAcquisition(QMainWindow):
     def __init__(self, *args, **kwargs):
         super(DataAcquisition, self).__init__(*args, **kwargs)
-        self.setWindowTitle("Ricovr Data Acquisition Software")
+        self.setWindowTitle("Data Acquisition Software")
         self.setMinimumSize(800, 600)
 
         # ----------------- INIT. AXES -----------------
@@ -80,7 +80,7 @@ class DataAcquisition(QMainWindow):
         title_layout = QVBoxLayout()
 
         # TITLE
-        self.title = QLabel("Ricovr Data Acquisition & Visualization Software", self)
+        self.title = QLabel("Data Acquisition & Visualization Software", self)
         self.title.setFont(QFont('Verdana', 24))
         self.title.setAlignment(Qt.AlignCenter)
         title_layout.addWidget(self.title)
