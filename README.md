@@ -13,7 +13,14 @@
 - **Start / Stop / Clear** controls for acquisition and display  
 - **Save to CSV** (timestamps + values) including computed **mean**, **std dev**, and **variance** for statistical analysis
 - **Dark “Fusion” style** for consistent look on Windows/macOS/Linux  
-- Packaged with **PyInstaller** into a single executable (with custom icon)  
+- Packaged with **PyInstaller** into a single executable (with custom icon)
+
+## Planned Updates:
+
+- **Plot-point tools** (viewing datapoint info.)
+- **Gain controls**
+- **Saved user settings for rolling time window, baud rate, etc**
+- **File name settings**
 
 ## Prerequisites
 
