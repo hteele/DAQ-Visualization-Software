@@ -1,6 +1,6 @@
 # Data Acquisition and Visualization Software
 
-### Developed and updated: Harrison Teele, B.E. 2025, M.S. 2026
+### Developed and maintained by: Harrison Teele, B.E. 2025, M.S. 2026
 
 **A cross-platform PyQt5 application for real-time plotting and logging of analog sensor data sent over a serial (UART) link from an ESP/Arduino-style board**
 
