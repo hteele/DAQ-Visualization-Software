@@ -4,6 +4,8 @@
 
 **A cross-platform PyQt5 application for real-time plotting and logging of analog sensor data sent over a serial (UART) link from an ESP/Arduino-style board**
 
+![daq](daq.jpeg)
+
 ## Features
 
 - **Real-time plotting** of incoming values with a rolling 2-minute (variable) window  
